@@ -4,6 +4,7 @@ pipeline {
         RECIPIENT_EMAIL = 'npestov9@gmail.com'
         AWS_DEFAULT_REGION = 'us-east-1'
         SONAR_TOKEN = credentials('sonarqube-token')
+        PATH = "${env.PATH}:/usr/local/bin" // Add the path to docker-compose
     }
     tools {
         maven 'Maven 3.9.8'
@@ -34,6 +35,14 @@ pipeline {
                     withSonarQubeEnv('LocalSonarQube') {
                         sh 'mvn sonar:sonar -Dsonar.login=${SONAR_TOKEN}'
                     }
+                }
+            }
+        }
+        stage('Verify Docker Compose') {
+            steps {
+                script {
+                    echo "Verifying Docker Compose installation"
+                    sh 'docker-compose --version'
                 }
             }
         }
