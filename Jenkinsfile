@@ -54,7 +54,10 @@ pipeline {
             steps {
                 script {
                     echo "Deploying to staging environment using Docker Compose"
-                    sh 'docker-compose -f docker-compose-staging.yml up -d'
+                    sh '''
+                    docker-compose -f docker-compose-staging.yml down
+                    docker-compose -f docker-compose-staging.yml up -d
+                    '''
                 }
             }
         }
