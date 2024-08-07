@@ -17,6 +17,11 @@ pipeline {
                     sh 'mvn clean package'
                 }
                 archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+                // Add a step to list the contents of the target directory
+                script {
+                    echo "Listing contents of the target directory"
+                    sh 'ls -l target'
+                }
             }
         }
         stage('Test') {
@@ -59,8 +64,9 @@ pipeline {
                 script {
                     echo "Deploying to production environment using AWS CodeDeploy"
                     withAWS(credentials: 'aws-credentials', region: "${env.AWS_DEFAULT_REGION}") {
-                        sh 'aws s3 cp target/my-app.jar s3://my-bucket/my-app.jar'
-                        def deploymentId = sh(script: 'aws deploy create-deployment --application-name my-application --deployment-group-name my-deployment-group --s3-location bucket=my-bucket,key=my-app.jar,bundleType=zip --query "deploymentId" --output text', returnStdout: true).trim()
+                        // Correct the JAR file path
+                        sh 'aws s3 cp target/SampleJavaProject-1.0-SNAPSHOT.jar s3://my-bucket/SampleJavaProject-1.0-SNAPSHOT.jar'
+                        def deploymentId = sh(script: 'aws deploy create-deployment --application-name my-application --deployment-group-name my-deployment-group --s3-location bucket=my-bucket,key=SampleJavaProject-1.0-SNAPSHOT.jar,bundleType=zip --query "deploymentId" --output text', returnStdout: true).trim()
                         echo "Created deployment with ID: ${deploymentId}"
                         sh "aws deploy wait deployment-successful --deployment-id ${deploymentId}"
                     }
