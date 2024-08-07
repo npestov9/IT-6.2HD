@@ -2,7 +2,10 @@ pipeline {
     agent any
     environment {
         RECIPIENT_EMAIL = 'npestov9@gmail.com'
-        AWS_DEFAULT_REGION = 'us-east-1'
+        AWS_DEFAULT_REGION = 'us-east-1' // Set your AWS region
+    }
+    tools {
+        maven 'Maven 3.9.8' // Ensure this matches the Maven version configured in Jenkins
     }
     stages {
         stage('Build') {
@@ -27,7 +30,7 @@ pipeline {
             steps {
                 script {
                     echo "Running code quality analysis using SonarQube"
-                    withSonarQubeEnv('SonarQube') {
+                    withSonarQubeEnv('SonarQube') { 
                         sh 'mvn sonar:sonar'
                     }
                 }
