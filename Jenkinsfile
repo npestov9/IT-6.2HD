@@ -4,7 +4,7 @@ pipeline {
         RECIPIENT_EMAIL = 'npestov9@gmail.com'
         AWS_DEFAULT_REGION = 'us-east-1'
         SONAR_TOKEN = credentials('sonarqube-token')
-        PATH = "${env.PATH}:/usr/local/bin" // Add the path to docker-compose
+        PATH = "${env.PATH}:/usr/local/bin:/opt/homebrew/bin" // Add the path to docker-compose and AWS CLI
     }
     tools {
         maven 'Maven 3.9.8'
