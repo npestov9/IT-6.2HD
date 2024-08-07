@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         RECIPIENT_EMAIL = 'npestov9@gmail.com'
-        AWS_DEFAULT_REGION = 'us-east-1'
+        AWS_DEFAULT_REGION = 'ap-southeast-2' // Set the AWS region to ap-southeast-2
         SONAR_TOKEN = credentials('sonarqube-token')
         PATH = "${env.PATH}:/usr/local/bin:/opt/homebrew/bin" // Add the path to docker-compose and AWS CLI
     }
@@ -17,7 +17,6 @@ pipeline {
                     sh 'mvn clean package'
                 }
                 archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
-                // Add a step to list the contents of the target directory
                 script {
                     echo "Listing contents of the target directory"
                     sh 'ls -l target'
@@ -64,9 +63,8 @@ pipeline {
                 script {
                     echo "Deploying to production environment using AWS CodeDeploy"
                     withAWS(credentials: 'aws-credentials', region: "${env.AWS_DEFAULT_REGION}") {
-                        // Correct the JAR file path
-                        sh 'aws s3 cp target/SampleJavaProject-1.0-SNAPSHOT.jar s3://my-bucket/SampleJavaProject-1.0-SNAPSHOT.jar'
-                        def deploymentId = sh(script: 'aws deploy create-deployment --application-name my-application --deployment-group-name my-deployment-group --s3-location bucket=my-bucket,key=SampleJavaProject-1.0-SNAPSHOT.jar,bundleType=zip --query "deploymentId" --output text', returnStdout: true).trim()
+                        sh 'aws s3 cp target/SampleJavaProject-1.0-SNAPSHOT.jar s3://nikita-pestov-2003-test/SampleJavaProject-1.0-SNAPSHOT.jar'
+                        def deploymentId = sh(script: 'aws deploy create-deployment --application-name my-application --deployment-group-name my-deployment-group --s3-location bucket=nikita-pestov-2003-test,key=SampleJavaProject-1.0-SNAPSHOT.jar,bundleType=zip --query "deploymentId" --output text', returnStdout: true).trim()
                         echo "Created deployment with ID: ${deploymentId}"
                         sh "aws deploy wait deployment-successful --deployment-id ${deploymentId}"
                     }
