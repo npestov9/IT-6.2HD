@@ -63,28 +63,28 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to Production') {
-            steps {
-                script {
-                    echo "Deploying to production environment using AWS CodeDeploy"
-                    withAWS(credentials: 'aws-credentials', region: "${env.AWS_DEFAULT_REGION}") {
-                        sh 'aws s3 cp target/SampleJavaProject-1.0-SNAPSHOT.jar s3://nikita-pestov-2003-test/SampleJavaProject-1.0-SNAPSHOT.jar'
-                        def deploymentId = sh(script: 'aws deploy create-deployment --application-name my-application --deployment-group-name my-deployment-group --s3-location bucket=nikita-pestov-2003-test,key=SampleJavaProject-1.0-SNAPSHOT.jar,bundleType=zip --query "deploymentId" --output text', returnStdout: true).trim()
-                        echo "Created deployment with ID: ${deploymentId}"
-                        sh "aws deploy wait deployment-successful --deployment-id ${deploymentId}"
-                    }
-                }
-            }
-        }
-        stage('Monitoring and Alerting') {
-            steps {
-                script {
-                    echo "Setting up monitoring and alerting"
-                    sh './setup-monitoring.sh'
-                }
-            }
-        }
-    }
+    //     stage('Deploy to Production') {
+    //         steps {
+    //             script {
+    //                 echo "Deploying to production environment using AWS CodeDeploy"
+    //                 withAWS(credentials: 'aws-credentials', region: "${env.AWS_DEFAULT_REGION}") {
+    //                     sh 'aws s3 cp target/SampleJavaProject-1.0-SNAPSHOT.jar s3://nikita-pestov-2003-test/SampleJavaProject-1.0-SNAPSHOT.jar'
+    //                     def deploymentId = sh(script: 'aws deploy create-deployment --application-name my-application --deployment-group-name my-deployment-group --s3-location bucket=nikita-pestov-2003-test,key=SampleJavaProject-1.0-SNAPSHOT.jar,bundleType=zip --query "deploymentId" --output text', returnStdout: true).trim()
+    //                     echo "Created deployment with ID: ${deploymentId}"
+    //                     sh "aws deploy wait deployment-successful --deployment-id ${deploymentId}"
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     stage('Monitoring and Alerting') {
+    //         steps {
+    //             script {
+    //                 echo "Setting up monitoring and alerting"
+    //                 sh './setup-monitoring.sh'
+    //             }
+    //         }
+    //     }
+    // }
     post {
         always {
             emailext subject: "Pipeline Notification",

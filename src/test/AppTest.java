@@ -8,4 +8,8 @@ public class AppTest {
     public void shouldAnswerWithTrue() {
         assertTrue(true);
     }
+    @Test
+    public void additionTest() {
+        assertTrue(2+2==4);
+    }
 }
