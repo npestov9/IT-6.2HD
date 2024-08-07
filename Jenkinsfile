@@ -2,20 +2,13 @@ pipeline {
     agent any
     environment {
         RECIPIENT_EMAIL = 'npestov9@gmail.com'
-        AWS_DEFAULT_REGION = 'us-east-1' // Set your AWS region
-        SONARQUBE_SERVER = 'LocalSonarQube'  // The name of your SonarQube server configuration in Jenkins
-        SONAR_PROJECT_KEY = 'my-project'  // Your SonarQube project key
-        SONAR_PROJECT_NAME = 'My Project'  // Your SonarQube project name
+        AWS_DEFAULT_REGION = 'us-east-1'
+        SONAR_TOKEN = credentials('sonarqube-token')
     }
     tools {
-        maven 'Maven 3.9.8' // Ensure this matches the Maven version configured in Jenkins
+        maven 'Maven 3.9.8'
     }
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
         stage('Build') {
             steps {
                 script {
@@ -38,8 +31,8 @@ pipeline {
             steps {
                 script {
                     echo "Running code quality analysis using SonarQube"
-                    withSonarQubeEnv(SONARQUBE_SERVER) { 
-                        sh "mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.projectName=${SONAR_PROJECT_NAME}"
+                    withSonarQubeEnv('LocalSonarQube') {
+                        sh 'mvn sonar:sonar -Dsonar.login=${SONAR_TOKEN}'
                     }
                 }
             }
@@ -57,14 +50,9 @@ pipeline {
                 script {
                     echo "Deploying to production environment using AWS CodeDeploy"
                     withAWS(credentials: 'aws-credentials', region: "${env.AWS_DEFAULT_REGION}") {
-                        // Upload artifact to S3
                         sh 'aws s3 cp target/my-app.jar s3://my-bucket/my-app.jar'
-                        
-                        // Create deployment
                         def deploymentId = sh(script: 'aws deploy create-deployment --application-name my-application --deployment-group-name my-deployment-group --s3-location bucket=my-bucket,key=my-app.jar,bundleType=zip --query "deploymentId" --output text', returnStdout: true).trim()
                         echo "Created deployment with ID: ${deploymentId}"
-                        
-                        // Wait for deployment to complete
                         sh "aws deploy wait deployment-successful --deployment-id ${deploymentId}"
                     }
                 }
