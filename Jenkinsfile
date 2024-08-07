@@ -55,7 +55,9 @@ pipeline {
                 script {
                     echo "Deploying to staging environment using Docker Compose"
                     sh '''
-                    docker-compose -f docker-compose-staging.yml down
+                    if [ "$(docker ps -q -f name=java_app)" ]; then
+                        docker stop java_app && docker rm java_app
+                    fi
                     docker-compose -f docker-compose-staging.yml up -d
                     '''
                 }
