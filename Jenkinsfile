@@ -3,11 +3,19 @@ pipeline {
     environment {
         RECIPIENT_EMAIL = 'npestov9@gmail.com'
         AWS_DEFAULT_REGION = 'us-east-1' // Set your AWS region
+        SONARQUBE_SERVER = 'LocalSonarQube'  // The name of your SonarQube server configuration in Jenkins
+        SONAR_PROJECT_KEY = 'my-project'  // Your SonarQube project key
+        SONAR_PROJECT_NAME = 'My Project'  // Your SonarQube project name
     }
     tools {
         maven 'Maven 3.9.8' // Ensure this matches the Maven version configured in Jenkins
     }
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
         stage('Build') {
             steps {
                 script {
@@ -30,8 +38,8 @@ pipeline {
             steps {
                 script {
                     echo "Running code quality analysis using SonarQube"
-                    withSonarQubeEnv('SonarQube') { 
-                        sh 'mvn sonar:sonar'
+                    withSonarQubeEnv(SONARQUBE_SERVER) { 
+                        sh "mvn sonar:sonar -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.projectName=${SONAR_PROJECT_NAME}"
                     }
                 }
             }
